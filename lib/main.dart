@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:myportofolio_mobile/menu.dart';
+import 'package:myportofolio_mobile/app_colors.dart';
 
 void main() {
   runApp(const MyApp());
@@ -13,11 +14,16 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'MyPortfolio',
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: Colors.indigo,
-          secondary: Colors.amber[700],
-        ),
         useMaterial3: true,
+        scaffoldBackgroundColor: AppColors.bgMain,
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: AppColors.accentPurple,
+          brightness: Brightness.dark,
+        ).copyWith(
+          primary: AppColors.accentPurple,
+          secondary: AppColors.accentCyan,
+          surface: AppColors.bgMain,
+        ),
       ),
       home: MyHomePage(),
     );
