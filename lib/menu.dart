@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:myportofolio_mobile/app_colors.dart';
 
 class MyHomePage extends StatelessWidget {
   MyHomePage({super.key});
@@ -6,9 +7,9 @@ class MyHomePage extends StatelessWidget {
   final String nama = "Faiz";
   final String kelas = "PBP A";
   final List<ItemHomepage> items = [
-    ItemHomepage("View Skills", Icons.psychology, Colors.blue),
-    ItemHomepage("Add Skill", Icons.add_circle, Colors.green),
-    ItemHomepage("Logout", Icons.logout, Colors.red),
+    ItemHomepage("View Skills", Icons.psychology, AppColors.actionCyan),
+    ItemHomepage("Add Skill", Icons.add_circle, AppColors.accentPurple),
+    ItemHomepage("Logout", Icons.logout, AppColors.danger),
   ];  
 
   @override
@@ -127,7 +128,8 @@ class ItemCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: item.color,
+      // Uses the background color defined in the item model.
+      color: item.color,      
       borderRadius: BorderRadius.circular(12),
       child: InkWell(
         // Aksi ketika kartu ditekan oleh pengguna.
