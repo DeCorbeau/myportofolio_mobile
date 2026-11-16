@@ -2,6 +2,7 @@ import 'package:material_ui/material_ui.dart';
 import 'package:myportofolio_mobile/app_colors.dart';
 import 'package:myportofolio_mobile/screens/menu.dart';
 import 'package:myportofolio_mobile/screens/skill_form.dart';
+import 'package:myportofolio_mobile/screens/experience_form.dart';
 
 class LeftDrawer extends StatelessWidget {
   const LeftDrawer({super.key});
@@ -77,6 +78,21 @@ class LeftDrawer extends StatelessWidget {
               );
             },
           ),
+          // Navigate to the add experience page
+          ListTile(
+            leading: const Icon(Icons.work_outline),
+            iconColor: AppColors.accentPurple,
+            textColor: AppColors.textPrimary,
+            title: const Text('Add Experience'),
+            onTap: () {
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const ExperienceFormPage(),
+                ),
+              );
+            },
+          ),          
         ],
       ),
     );
