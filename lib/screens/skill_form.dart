@@ -2,6 +2,7 @@ import 'package:material_ui/material_ui.dart';
 import 'package:myportofolio_mobile/app_colors.dart';
 import 'package:myportofolio_mobile/screens/menu.dart';
 import 'package:myportofolio_mobile/widgets/left_drawer.dart';
+import 'package:myportofolio_mobile/widgets/form_helpers.dart';
 
 class SkillFormPage extends StatefulWidget {
   const SkillFormPage({super.key});
@@ -57,70 +58,6 @@ class _SkillFormPageState extends State<SkillFormPage> {
     });
   }
 
-  InputDecoration _inputDecoration({String? hint}) {
-    OutlineInputBorder border(Color color) => OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10),
-          borderSide: BorderSide(color: color),
-        );
-    return InputDecoration(
-      hintText: hint,
-      hintStyle: const TextStyle(color: AppColors.textSecondary),
-      filled: true,
-      fillColor: AppColors.inputFill,
-      contentPadding:
-          const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-      border: border(AppColors.border),
-      enabledBorder: border(AppColors.border),
-      focusedBorder: border(AppColors.accentPurple),
-      errorBorder: border(AppColors.danger),
-      focusedErrorBorder: border(AppColors.danger),
-    );
-  }
-
-  // Bold label above the input, like the website form.
-  Widget _field(String label, Widget input) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 10.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            label,
-            style: const TextStyle(
-              color: AppColors.textPrimary,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          const SizedBox(height: 8.0),
-          input,
-        ],
-      ),
-    );
-  }
-
-  Widget _summaryRow(String label, String value) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 8.0),
-      child: Text.rich(
-        TextSpan(
-          children: [
-            TextSpan(
-              text: '$label: ',
-              style: const TextStyle(
-                fontWeight: FontWeight.bold,
-                color: AppColors.accentPurple,
-              ),
-            ),
-            TextSpan(
-              text: value.isEmpty ? '-' : value,
-              style: const TextStyle(color: AppColors.textPrimary),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -163,12 +100,12 @@ class _SkillFormPageState extends State<SkillFormPage> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     // === Skill Name ===
-                    _field(
+                    labeledField(
                       'Skill Name',
                       TextFormField(
                         style: const TextStyle(color: AppColors.textPrimary),
                         decoration:
-                            _inputDecoration(hint: 'Team Leadership'),
+                            buildInputDecoration(hint: 'Team Leadership'),
                         onChanged: (String? value) {
                           setState(() {
                             _skillName = value!;
@@ -183,13 +120,13 @@ class _SkillFormPageState extends State<SkillFormPage> {
                       ),
                     ),
                     // === Category ===
-                    _field(
+                    labeledField(
                       'Category',
                       DropdownButtonFormField<String>(
                         isExpanded: true,
                         dropdownColor: AppColors.surface,
-                        style: const TextStyle(color: AppColors.textPrimary),
-                        decoration: _inputDecoration(),
+                        style: dropdownTextStyle(context),
+                        decoration: buildInputDecoration(),
                         initialValue: _category,
                         items: _categories.entries
                             .map((entry) => DropdownMenuItem(
@@ -223,13 +160,13 @@ class _SkillFormPageState extends State<SkillFormPage> {
                       ),
                     ),
                     // === Proficiency Level ===
-                    _field(
+                    labeledField(
                       'Proficiency Level',
                       DropdownButtonFormField<String>(
                         isExpanded: true,
                         dropdownColor: AppColors.surface,
-                        style: const TextStyle(color: AppColors.textPrimary),
-                        decoration: _inputDecoration(),
+                        style: dropdownTextStyle(context),
+                        decoration: buildInputDecoration(),
                         initialValue: _level,
                         items: _levels
                             .map((level) => DropdownMenuItem(
@@ -245,12 +182,12 @@ class _SkillFormPageState extends State<SkillFormPage> {
                       ),
                     ),
                     // === Impact / Achievement ===
-                    _field(
+                    labeledField(
                       'Impact/Achievement',
                       TextFormField(
                         maxLines: 4,
                         style: const TextStyle(color: AppColors.textPrimary),
-                        decoration: _inputDecoration(
+                        decoration: buildInputDecoration(
                           hint: 'Led a team of 8 to hit the division target',
                         ),
                         onChanged: (String? value) {
@@ -267,11 +204,11 @@ class _SkillFormPageState extends State<SkillFormPage> {
                       ),
                     ),
                     // === Context ===
-                    _field(
+                    labeledField(
                       'Context (from which experience)',
                       TextFormField(
                         style: const TextStyle(color: AppColors.textPrimary),
-                        decoration: _inputDecoration(
+                        decoration: buildInputDecoration(
                           hint:
                               'PIC of Ambassador Division — Open House Fasilkom UI 2026',
                         ),
@@ -342,12 +279,12 @@ class _SkillFormPageState extends State<SkillFormPage> {
                                           crossAxisAlignment:
                                               CrossAxisAlignment.start,
                                           children: [
-                                            _summaryRow(
+                                            summaryRow(
                                                 'Skill Name', _skillName),
-                                            _summaryRow('Category', _category),
-                                            _summaryRow('Level', _level),
-                                            _summaryRow('Impact', _impact),
-                                            _summaryRow('Context',
+                                            summaryRow('Category', _category),
+                                            summaryRow('Level', _level),
+                                            summaryRow('Impact', _impact),
+                                            summaryRow('Context',
                                                 _experienceContext),
                                           ],
                                         ),
