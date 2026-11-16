@@ -26,5 +26,7 @@ class AppColors {
   static const Color catLeadership = accentPurple;
   static const Color catEvent = Color(0xFFF472B6);
   static const Color catCommunication = Color(0xFFFBBF24);
-  static const Color catTechnical = accentCyan;  
+  static const Color catTechnical = accentCyan;
+
+  static const Color actionPink = Color(0xFFDB2777);
 }
