@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 /// Color palette mirrored from the website's static/css/style.css.
 class AppColors {
@@ -17,4 +17,14 @@ class AppColors {
   // Darker tones used as button backgrounds so white text stays readable.
   static const Color actionCyan = Color(0xFF0891B2);
   static const Color danger = Color(0xFFDC2626);
+
+  // Tambahan untuk form dan dialog (mengikuti website)
+  static const Color surface = Color(0xFF14121C);
+  static const Color inputFill = Color(0xFF15131D);
+
+  // Warna kategori skill (sama seperti di website)
+  static const Color catLeadership = accentPurple;
+  static const Color catEvent = Color(0xFFF472B6);
+  static const Color catCommunication = Color(0xFFFBBF24);
+  static const Color catTechnical = accentCyan;  
 }
