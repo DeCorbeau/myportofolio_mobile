@@ -112,3 +112,38 @@ Saya tidak menerima keluaran kode dari AI begitu saja. Selama proses pengerjaan,
 * **Pengabaian Instruksi Awal:** Pada *prompt* instalasi pertama, AI sempat menyingkat alur penyiapan dan mengubah bahasa istilah tutorial. Saya mengoreksi AI agar kembali mengikuti langkah-langkah asli berkas tutorial secara presisi.
 * **Asumsi Lingkungan:** AI langsung berasumsi saya menggunakan OS Windows tanpa mengonfirmasinya terlebih dahulu, serta gagal mengidentifikasi penyebab pasti *error* paket `google_fonts` (`argument_type_not_assignable`).
 * **Verifikasi Mandiri:** Saya mengevaluasi seluruh kode keluaran AI dengan menguji aplikasi di peramban Chrome, memverifikasi kontras warna tampilan secara visual, serta memastikan perintah `flutter analyze` berjalan bersih tanpa *error* maupun *warning*.
+
+### Tugas 8
+
+1. **Jelaskan perbedaan antara Navigator.push(), Navigator.pushReplacement(), dan Navigator.pop(). Metode apa yang digunakan untuk membuka formulir dari kartu aksi? Jelaskan juga bagaimana opsi Home di drawer membawa pengguna kembali ke halaman utama**
+
+   `Navigator.push()` menambahkan route baru di atas stack sehingga halaman sebelumnya tetap ada di bawahnya dan pengguna bisa kembali. `Navigator.pop()` menghapus route teratas dan menampilkan route di bawahnya. `Navigator.pushReplacement()` mengganti route teratas dengan route baru sehingga route lama tidak bisa dikembali-i. Formulir dari kartu aksi dibuka dengan `Navigator.push()` agar tombol back tetap berfungsi. Opsi Home di drawer memakai `pushReplacement()` ke `MyHomePage` sehingga halaman formulir digantikan oleh halaman utama baru tanpa menumpuk halaman.
+
+2. **Bagaimana susunan Scaffold, AppBar, dan Drawer membantu menjaga struktur halaman tetap konsisten? Berikan satu contoh penggunaan warna tema portofolio di lebih dari satu halaman.**
+
+   `Scaffold` menyediakan kerangka tetap (`appBar`, `drawer`, `body`) yang dipakai di setiap halaman, dan `LeftDrawer` adalah satu widget yang dipasang di halaman utama maupun kedua formulir sehingga navigasi selalu konsisten. Warna tema ada di `AppColors`: `bgMain` dipakai sebagai latar AppBar dan Scaffold di halaman utama dan formulir, sedangkan `accentPurple` dipakai pada titik di logo "Faiz.", ikon drawer, dan tombol simpan.
+
+3. **Mengapa tata letak tersebut dipilih untuk formulir? Jelaskan peran widget pengatur jarak dan widget penggulir ketika ruang layar terbatas.**
+
+   Formulir disusun dalam `Column` di dalam `SingleChildScrollView` dan dibatasi `ConstrainedBox` selebar 600 px. `Padding` dan `SizedBox` memberi jarak antar label dan input agar tidak berdempetan. `SingleChildScrollView` membuat seluruh input dan tombol Simpan tetap bisa dijangkau di layar sempit atau saat papan ketik muncul dan batas lebar menjaga tampilan tetap seperti layar ponsel di Chrome.
+
+4. **Apa peran GlobalKey<FormState>, validator, dan validate() saat tombol Simpan ditekan? Berikan satu contoh nilai yang ditolak oleh validasi dan jelaskan mengapa memilih jenis input atau papan ketik saja belum cukup.**
+
+   `GlobalKey<FormState>` dipasang pada `Form` sehingga tombol Simpan bisa mengakses `FormState` dari luar. `validator` pada tiap field menghasilkan pesan error (atau `null` jika valid), dan `validate()` menjalankan semua validator sekaligus, menampilkan pesan error di field yang bermasalah, dan mengembalikan `false` jika ada yang gagal sehingga dialog tidak muncul. Contoh nilai yang ditolak: End Date yang lebih awal dari Start Date, atau link `abc` pada field Reference Link. Memilih jenis input atau papan ketik saja tidak cukup karena `keyboardType` hanya mengatur tampilan papan ketik. Akibatnya, pengguna tetap bisa menempel teks apa saja atau mengetik spasi sehingga aturan seperti format URL dan urutan tanggal harus dicek oleh validator.
+
+**AI Disclosure — Tugas 8**
+
+Dalam pengerjaan Tugas Individu 8 dan Tutorial 09 ini, saya memanfaatkan AI (Claude) sebagai asisten belajar untuk menganalisis berkas panduan tutorial serta spesifikasi tugas. AI membimbing saya secara bertahap mulai dari penerapan navigasi antarhalaman menggunakan `Navigator`, pembuatan *drawer menu*, penyusunan elemen *form* beserta validasinya, hingga merapikan struktur proyek (*refactoring*) ke dalam direktori `screens/` dan `widgets/`.
+
+Saya tidak menerima kode yang diberikan AI begitu saja. Meskipun AI membantu menyusun kerangka awal kode untuk halaman formulir dan navigasi, saya tetap mengevaluasi dan memodifikasinya secara mandiri—termasuk menyesuaikan *field* dan aturan validasi pada formulir baru saya, menguji alur navigasi di peramban Chrome, serta memastikan `flutter analyze` berjalan bersih tanpa *error* maupun *warning*.
+
+### 1. Strategi Prompting & Ranah Bantuan AI
+- **Pemahaman Tutorial & Impor Flutter 3.50:** Mengunggah berkas `.md` Tutorial 09 dan meminta AI memandu langkah pengerjaan, termasuk menyesuaikan transisi pustaka impor ke paket `material_ui` agar kompatibel dengan versi Flutter terbaru.
+- **Navigasi & Refactoring Struktur:** Meminta panduan pemisahan komponen *widget* (`LeftDrawer`, `ItemCard`) dan halaman (`MyHomePage`, `ProjectFormPage`) ke dalam folder `lib/widgets/` dan `lib/screens/`, sekaligus memastikan *routing* `push()` dan `pushReplacement()` berjalan sesuai kebutuhan.
+- **Pembuatan & Validasi Form Tugas 8:** Mengunggah spesifikasi Tugas 8 untuk mendiskusikan rancangan formulir baru (penentuan tipe *input widget*, penggunaan `GlobalKey<FormState>`, validasi input wajib/format, serta penampilan ringkasan data via `AlertDialog`).
+
+### 2. Evaluasi Kritis, Keterbatasan AI, & Perbaikan Manual
+Saya tidak menggunakan keluaran kode dari AI tanpa pengujian. Selama proses pengerjaan, saya menemukan beberapa keterbatasan AI dan melakukan perbaikan manual:
+- **Penyesuaian Impor & Referensi Path:** Saat proses *refactoring* pemindahan file ke direktori `screens/` dan `widgets/`, AI sempat menyertakan jalur impor lama (`flutter/material.dart` maupun *path* relatif yang belum diperbarui), sehingga menimbulkan peringatan *deprecated* dan *error* referensi. Saya memperbaikinya secara manual menggunakan fitur *auto-refactor* di VS Code dan menyeragamkannya ke `package:material_ui/material_ui.dart`.
+- **Validasi Input & Konsistensi Tema:** Kode contoh dari AI masih menggunakan warna *hardcoded* (`Colors.indigo`) yang bertabrakan dengan tema gelap portofolio saya dari Tugas 7, serta validasi yang terlalu generik. Saya menyesuaikan sendiri skema warnanya agar menyatu dengan `ThemeData` aplikasi dan memperketat logika `validator` (seperti menolak *string* yang hanya berisi spasi dan memeriksa format input).
+- **Pengujian Mandiri:** Saya melakukan pengujian menyeluruh pada layar sempit (mode responsif) di Chrome untuk memastikan form dapat di-*scroll* dengan `SingleChildScrollView`, tombol simpan tetap terjangkau, serta menguji skenario input valid, input kosong, dan perpindahan *drawer*.
