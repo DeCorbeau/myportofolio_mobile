@@ -3,12 +3,17 @@ import 'package:myportofolio_mobile/app_colors.dart';
 import 'package:myportofolio_mobile/screens/menu.dart';
 import 'package:myportofolio_mobile/screens/skill_form.dart';
 import 'package:myportofolio_mobile/screens/experience_form.dart';
+import 'package:myportofolio_mobile/screens/skill_list_screen.dart';
+import 'package:myportofolio_mobile/services/auth_state.dart';
+import 'package:myportofolio_mobile/widgets/auth_guard.dart';
+import 'package:provider/provider.dart';
 
 class LeftDrawer extends StatelessWidget {
   const LeftDrawer({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final isLoggedIn = context.watch<AuthState>().isLoggedIn;
     return Drawer(
       backgroundColor: AppColors.bgMain,
       child: ListView(
@@ -48,7 +53,6 @@ class LeftDrawer extends StatelessWidget {
               ],
             ),
           ),
-          // Navigate to the portfolio home page
           ListTile(
             leading: const Icon(Icons.home_outlined),
             iconColor: AppColors.accentPurple,
@@ -57,42 +61,72 @@ class LeftDrawer extends StatelessWidget {
             onTap: () {
               Navigator.pushReplacement(
                 context,
-                MaterialPageRoute(
-                  builder: (context) => MyHomePage(),
-                ),
+                MaterialPageRoute(builder: (context) => MyHomePage()),
               );
             },
           ),
-          // Navigate to the add skill page
+          ListTile(
+            leading: const Icon(Icons.psychology_outlined),
+            iconColor: AppColors.accentPurple,
+            textColor: AppColors.textPrimary,
+            title: const Text('View Skills'),
+            onTap: () {
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => const SkillListScreen()),
+              );
+            },
+          ),
           ListTile(
             leading: const Icon(Icons.add_circle_outline),
             iconColor: AppColors.accentPurple,
             textColor: AppColors.textPrimary,
             title: const Text('Add Skill'),
-            onTap: () {
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const SkillFormPage(),
-                ),
+            onTap: () async {
+              final navigator = Navigator.of(context);
+              if (!await ensureLoggedIn(context)) return;
+              navigator.pushReplacement(
+                MaterialPageRoute(builder: (context) => const SkillFormPage()),
               );
             },
           ),
-          // Navigate to the add experience page
           ListTile(
             leading: const Icon(Icons.work_outline),
             iconColor: AppColors.accentPurple,
             textColor: AppColors.textPrimary,
             title: const Text('Add Experience'),
-            onTap: () {
-              Navigator.pushReplacement(
-                context,
+            onTap: () async {
+              final navigator = Navigator.of(context);
+              if (!await ensureLoggedIn(context)) return;
+              navigator.pushReplacement(
                 MaterialPageRoute(
-                  builder: (context) => const ExperienceFormPage(),
-                ),
+                    builder: (context) => const ExperienceFormPage()),
               );
             },
-          ),          
+          ),
+          if (isLoggedIn)
+            ListTile(
+              leading: const Icon(Icons.logout),
+              iconColor: AppColors.danger,
+              textColor: AppColors.textPrimary,
+              title: const Text('Logout'),
+              onTap: () async {
+                final navigator = Navigator.of(context);
+                await context.read<AuthState>().logout();
+                navigator.pop(); // close the drawer
+              },
+            )
+          else
+            ListTile(
+              leading: const Icon(Icons.login),
+              iconColor: AppColors.accentPurple,
+              textColor: AppColors.textPrimary,
+              title: const Text('Login'),
+              onTap: () async {
+                await ensureLoggedIn(context);
+              },
+            ),
         ],
       ),
     );
