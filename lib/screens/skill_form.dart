@@ -3,6 +3,12 @@ import 'package:myportofolio_mobile/app_colors.dart';
 import 'package:myportofolio_mobile/screens/menu.dart';
 import 'package:myportofolio_mobile/widgets/left_drawer.dart';
 import 'package:myportofolio_mobile/widgets/form_helpers.dart';
+import 'package:myportofolio_mobile/models/skill.dart';
+import 'package:myportofolio_mobile/screens/skill_list_screen.dart';
+import 'package:myportofolio_mobile/services/api_client.dart';
+import 'package:myportofolio_mobile/services/auth_state.dart';
+import 'package:myportofolio_mobile/widgets/auth_guard.dart';
+import 'package:provider/provider.dart';
 
 class SkillFormPage extends StatefulWidget {
   const SkillFormPage({super.key});
@@ -18,6 +24,15 @@ class _SkillFormPageState extends State<SkillFormPage> {
   String _level = "Beginner"; // default
   String _impact = "";
   String _experienceContext = "";
+  bool _isSubmitting = false;
+
+  // API values for the dropdown labels.
+  static const Map<String, String> _categoryKeys = {
+    'Leadership & Management': 'leadership',
+    'Event & Project Coordination': 'event',
+    'Communication & Stakeholder Relations': 'communication',
+    'Technical': 'technical',
+  };  
 
   // Categories with their colors (same as the website).
   final Map<String, Color> _categories = {
@@ -57,6 +72,114 @@ class _SkillFormPageState extends State<SkillFormPage> {
       _experienceContext = "";
     });
   }
+
+  Future<void> _submit() async {
+    if (!_formKey.currentState!.validate()) return;
+    if (!await ensureLoggedIn(context)) return;
+    if (!mounted) return;
+
+    final auth = context.read<AuthState>();
+    final apiClient = context.read<ApiClient>();
+    final messenger = ScaffoldMessenger.of(context);
+    final token = auth.token;
+    if (token == null) return;
+
+    setState(() {
+      _isSubmitting = true;
+    });
+    try {
+      final created = await apiClient.createSkill(
+        Skill(
+          name: _skillName.trim(),
+          category: _categoryKeys[_category]!,
+          proficiency: _levels.indexOf(_level) + 1,
+          impact: _impact.trim(),
+          context: _experienceContext.trim(),
+        ),
+        token: token,
+      );
+      if (!mounted) return;
+      _showSuccessDialog(created);
+    } on ApiException catch (e) {
+      if (e.statusCode == 401) {
+        // Token rejected: clear the session and ask the user to log in again.
+        await auth.logout();
+        messenger.showSnackBar(
+          const SnackBar(content: Text('Session expired. Please log in again.')),
+        );
+        if (!mounted) return;
+        await ensureLoggedIn(context);
+      } else {
+        messenger.showSnackBar(
+          SnackBar(content: Text('Failed to save skill (${e.statusCode}).')),
+        );
+      }
+    } catch (_) {
+      messenger.showSnackBar(
+        const SnackBar(content: Text('Cannot reach the server.')),
+      );
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isSubmitting = false;
+        });
+      }
+    }
+  }
+
+  void _showSuccessDialog(Skill created) {
+    showDialog(
+      context: context,
+      builder: (dialogContext) {
+        return AlertDialog(
+          backgroundColor: AppColors.surface,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+            side: const BorderSide(color: AppColors.border),
+          ),
+          title: const Text(
+            'Skill added successfully!',
+            style: TextStyle(
+              color: AppColors.textPrimary,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          content: SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                summaryRow('Skill Name', created.name),
+                summaryRow('Category', created.categoryDisplay),
+                summaryRow('Level', created.proficiencyDisplay),
+                summaryRow('Impact', created.impact),
+                summaryRow('Context', created.context),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              child: const Text('Add Another'),
+              onPressed: () {
+                Navigator.pop(dialogContext);
+                _resetForm();
+              },
+            ),
+            TextButton(
+              child: const Text('View Skills'),
+              onPressed: () {
+                Navigator.pop(dialogContext);
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => const SkillListScreen()),
+                );
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }  
 
   @override
   Widget build(BuildContext context) {
@@ -254,66 +377,21 @@ class _SkillFormPageState extends State<SkillFormPage> {
                                 ),
                               ),
                             ),
-                            onPressed: () {
-                              if (_formKey.currentState!.validate()) {
-                                showDialog(
-                                  context: context,
-                                  builder: (context) {
-                                    return AlertDialog(
-                                      backgroundColor: AppColors.surface,
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius:
-                                            BorderRadius.circular(16),
-                                        side: const BorderSide(
-                                            color: AppColors.border),
-                                      ),
-                                      title: const Text(
-                                        'Skill added successfully!',
-                                        style: TextStyle(
-                                          color: AppColors.textPrimary,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
-                                      content: SingleChildScrollView(
-                                        child: Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            summaryRow(
-                                                'Skill Name', _skillName),
-                                            summaryRow('Category', _category),
-                                            summaryRow('Level', _level),
-                                            summaryRow('Impact', _impact),
-                                            summaryRow('Context',
-                                                _experienceContext),
-                                          ],
-                                        ),
-                                      ),
-                                      actions: [
-                                        TextButton(
-                                          style: TextButton.styleFrom(
-                                            foregroundColor:
-                                                AppColors.accentPurple,
-                                          ),
-                                          child: const Text('OK'),
-                                          onPressed: () {
-                                            Navigator.pop(context);
-                                            _resetForm();
-                                          },
-                                        ),
-                                      ],
-                                    );
-                                  },
-                                );
-                              }
-                            },
-                            child: const Text(
-                              'Add Skill',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
+                            onPressed: _isSubmitting ? null : _submit,
+                            child: _isSubmitting
+                                ? const SizedBox(
+                                    height: 20,
+                                    width: 20,
+                                    child: CircularProgressIndicator(
+                                        strokeWidth: 2),
+                                  )
+                                : const Text(
+                                    'Add Skill',
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
                           ),
                         ],
                       ),
