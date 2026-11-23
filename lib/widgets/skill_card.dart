@@ -40,7 +40,9 @@ class ItemCard extends StatelessWidget {
           ..showSnackBar(
             SnackBar(
               content: Text(
-                wasLoggedIn ? 'You have been logged out.' : 'You are not logged in.',
+                wasLoggedIn
+                    ? 'You have been logged out.'
+                    : 'You are not logged in.',
               ),
             ),
           );

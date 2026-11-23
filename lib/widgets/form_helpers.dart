@@ -5,9 +5,9 @@ import 'package:myportofolio_mobile/app_colors.dart';
 
 InputDecoration buildInputDecoration({String? hint, Widget? suffixIcon}) {
   OutlineInputBorder border(Color color) => OutlineInputBorder(
-        borderRadius: BorderRadius.circular(10),
-        borderSide: BorderSide(color: color),
-      );
+    borderRadius: BorderRadius.circular(10),
+    borderSide: BorderSide(color: color),
+  );
   return InputDecoration(
     hintText: hint,
     hintStyle: const TextStyle(color: AppColors.textSecondary),
@@ -26,9 +26,8 @@ InputDecoration buildInputDecoration({String? hint, Widget? suffixIcon}) {
 
 /// Dropdown text style that keeps the theme font (SpaceGrotesk).
 TextStyle? dropdownTextStyle(BuildContext context) =>
-    Theme.of(context).textTheme.bodyLarge?.copyWith(
-          color: AppColors.textPrimary,
-        );
+    Theme.of(context).textTheme.bodyLarge
+        ?.copyWith(color: AppColors.textPrimary);
 
 /// Bold label above an input, like the website form.
 Widget labeledField(String label, Widget input) {

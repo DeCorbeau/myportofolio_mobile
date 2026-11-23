@@ -10,7 +10,7 @@ class MyHomePage extends StatelessWidget {
   final String className = "PBP A";
   final List<ItemHomepage> items = [
     ItemHomepage("View Skills", Icons.psychology, AppColors.actionCyan),
-    ItemHomepage("Add Experience", Icons.work_outline, AppColors.actionPink),    
+    ItemHomepage("Add Experience", Icons.work_outline, AppColors.actionPink),
     ItemHomepage("Add Skill", Icons.add_circle, AppColors.accentPurple),
     ItemHomepage("Logout", Icons.logout, AppColors.danger),
   ];
@@ -55,10 +55,15 @@ class MyHomePage extends StatelessWidget {
                   // Horizontal row showing 3 InfoCards side by side.
                   Row(
                     children: [
-                      Expanded(child: InfoCard(title: 'NPM', content: npm)),
-                      Expanded(child: InfoCard(title: 'Name', content: name)),
                       Expanded(
-                          child: InfoCard(title: 'Class', content: className)),
+                        child: InfoCard(title: 'NPM', content: npm),
+                      ),
+                      Expanded(
+                        child: InfoCard(title: 'Name', content: name),
+                      ),
+                      Expanded(
+                        child: InfoCard(title: 'Class', content: className),
+                      ),
                     ],
                   ),
                   const SizedBox(height: 16.0),

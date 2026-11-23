@@ -74,8 +74,9 @@ class _ExperienceFormPageState extends State<ExperienceFormPage> {
   // Opens the date picker and stores the chosen date.
   Future<void> _pickDate({required bool isStart}) async {
     final DateTime now = DateTime.now();
-    final DateTime firstDate =
-        isStart ? DateTime(2010) : (_startDate ?? DateTime(2010));
+    final DateTime firstDate = isStart
+        ? DateTime(2010)
+        : (_startDate ?? DateTime(2010));
     final DateTime lastDate = DateTime(now.year + 5);
 
     DateTime initial = (isStart ? _startDate : _endDate) ?? now;
@@ -322,10 +323,12 @@ class _ExperienceFormPageState extends State<ExperienceFormPage> {
                         decoration: buildInputDecoration(),
                         initialValue: _defaultCategory,
                         items: _categories
-                            .map((category) => DropdownMenuItem(
-                                  value: category,
-                                  child: Text(category),
-                                ))
+                            .map(
+                              (category) => DropdownMenuItem(
+                                value: category,
+                                child: Text(category),
+                              ),
+                            )
                             .toList(),
                         onChanged: (String? newValue) {
                           setState(() {
@@ -393,7 +396,9 @@ class _ExperienceFormPageState extends State<ExperienceFormPage> {
                               foregroundColor: AppColors.textPrimary,
                               side: const BorderSide(color: AppColors.border),
                               padding: const EdgeInsets.symmetric(
-                                  horizontal: 20, vertical: 16),
+                                horizontal: 20,
+                                vertical: 16,
+                              ),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(10),
                               ),
@@ -405,10 +410,13 @@ class _ExperienceFormPageState extends State<ExperienceFormPage> {
                           ElevatedButton(
                             style: ButtonStyle(
                               backgroundColor: WidgetStateProperty.all(
-                                  AppColors.accentPurple),
+                                AppColors.accentPurple,
+                              ),
                               padding: WidgetStateProperty.all(
                                 const EdgeInsets.symmetric(
-                                    horizontal: 20, vertical: 16),
+                                  horizontal: 20,
+                                  vertical: 16,
+                                ),
                               ),
                               shape: WidgetStateProperty.all(
                                 RoundedRectangleBorder(

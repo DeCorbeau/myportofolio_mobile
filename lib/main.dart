@@ -27,14 +27,15 @@ class MyApp extends StatelessWidget {
         theme: ThemeData(
           useMaterial3: true,
           scaffoldBackgroundColor: AppColors.bgMain,
-          colorScheme: ColorScheme.fromSeed(
-            seedColor: AppColors.accentPurple,
-            brightness: Brightness.dark,
-          ).copyWith(
-            primary: AppColors.accentPurple,
-            secondary: AppColors.accentCyan,
-            surface: AppColors.bgMain,
-          ),
+          colorScheme:
+              ColorScheme.fromSeed(
+                seedColor: AppColors.accentPurple,
+                brightness: Brightness.dark,
+              ).copyWith(
+                primary: AppColors.accentPurple,
+                secondary: AppColors.accentCyan,
+                surface: AppColors.bgMain,
+              ),
           fontFamily: 'SpaceGrotesk',
         ),
         home: MyHomePage(),

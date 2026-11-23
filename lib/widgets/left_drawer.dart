@@ -19,9 +19,7 @@ class LeftDrawer extends StatelessWidget {
       child: ListView(
         children: [
           const DrawerHeader(
-            decoration: BoxDecoration(
-              color: AppColors.surface,
-            ),
+            decoration: BoxDecoration(color: AppColors.surface),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -74,7 +72,8 @@ class LeftDrawer extends StatelessWidget {
               Navigator.pushReplacement(
                 context,
                 MaterialPageRoute(
-                    builder: (context) => const SkillListScreen()),
+                  builder: (context) => const SkillListScreen(),
+                ),
               );
             },
           ),
@@ -101,7 +100,8 @@ class LeftDrawer extends StatelessWidget {
               if (!await ensureLoggedIn(context)) return;
               navigator.pushReplacement(
                 MaterialPageRoute(
-                    builder: (context) => const ExperienceFormPage()),
+                  builder: (context) => const ExperienceFormPage(),
+                ),
               );
             },
           ),

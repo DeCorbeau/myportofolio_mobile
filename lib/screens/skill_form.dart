@@ -32,7 +32,7 @@ class _SkillFormPageState extends State<SkillFormPage> {
     'Event & Project Coordination': 'event',
     'Communication & Stakeholder Relations': 'communication',
     'Technical': 'technical',
-  };  
+  };
 
   // Categories with their colors (same as the website).
   final Map<String, Color> _categories = {
@@ -105,7 +105,9 @@ class _SkillFormPageState extends State<SkillFormPage> {
         // Token rejected: clear the session and ask the user to log in again.
         await auth.logout();
         messenger.showSnackBar(
-          const SnackBar(content: Text('Session expired. Please log in again.')),
+          const SnackBar(
+            content: Text('Session expired. Please log in again.'),
+          ),
         );
         if (!mounted) return;
         await ensureLoggedIn(context);
@@ -171,7 +173,8 @@ class _SkillFormPageState extends State<SkillFormPage> {
                 Navigator.pushReplacement(
                   context,
                   MaterialPageRoute(
-                      builder: (context) => const SkillListScreen()),
+                    builder: (context) => const SkillListScreen(),
+                  ),
                 );
               },
             ),
@@ -179,7 +182,7 @@ class _SkillFormPageState extends State<SkillFormPage> {
         );
       },
     );
-  }  
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -227,8 +230,9 @@ class _SkillFormPageState extends State<SkillFormPage> {
                       'Skill Name',
                       TextFormField(
                         style: const TextStyle(color: AppColors.textPrimary),
-                        decoration:
-                            buildInputDecoration(hint: 'Team Leadership'),
+                        decoration: buildInputDecoration(
+                          hint: 'Team Leadership',
+                        ),
                         onChanged: (String? value) {
                           setState(() {
                             _skillName = value!;
@@ -252,28 +256,30 @@ class _SkillFormPageState extends State<SkillFormPage> {
                         decoration: buildInputDecoration(),
                         initialValue: _category,
                         items: _categories.entries
-                            .map((entry) => DropdownMenuItem(
-                                  value: entry.key,
-                                  child: Row(
-                                    children: [
-                                      Container(
-                                        width: 10,
-                                        height: 10,
-                                        decoration: BoxDecoration(
-                                          color: entry.value,
-                                          shape: BoxShape.circle,
-                                        ),
+                            .map(
+                              (entry) => DropdownMenuItem(
+                                value: entry.key,
+                                child: Row(
+                                  children: [
+                                    Container(
+                                      width: 10,
+                                      height: 10,
+                                      decoration: BoxDecoration(
+                                        color: entry.value,
+                                        shape: BoxShape.circle,
                                       ),
-                                      const SizedBox(width: 10),
-                                      Flexible(
-                                        child: Text(
-                                          entry.key,
-                                          overflow: TextOverflow.ellipsis,
-                                        ),
+                                    ),
+                                    const SizedBox(width: 10),
+                                    Flexible(
+                                      child: Text(
+                                        entry.key,
+                                        overflow: TextOverflow.ellipsis,
                                       ),
-                                    ],
-                                  ),
-                                ))
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            )
                             .toList(),
                         onChanged: (String? newValue) {
                           setState(() {
@@ -292,10 +298,12 @@ class _SkillFormPageState extends State<SkillFormPage> {
                         decoration: buildInputDecoration(),
                         initialValue: _level,
                         items: _levels
-                            .map((level) => DropdownMenuItem(
-                                  value: level,
-                                  child: Text(level),
-                                ))
+                            .map(
+                              (level) => DropdownMenuItem(
+                                value: level,
+                                child: Text(level),
+                              ),
+                            )
                             .toList(),
                         onChanged: (String? newValue) {
                           setState(() {
@@ -332,8 +340,7 @@ class _SkillFormPageState extends State<SkillFormPage> {
                       TextFormField(
                         style: const TextStyle(color: AppColors.textPrimary),
                         decoration: buildInputDecoration(
-                          hint:
-                              'PIC of Ambassador Division — Open House Fasilkom UI 2026',
+                          hint: 'PIC of Ambassador Division — Open House Fasilkom UI 2026',
                         ),
                         onChanged: (String? value) {
                           setState(() {
@@ -351,10 +358,11 @@ class _SkillFormPageState extends State<SkillFormPage> {
                           OutlinedButton(
                             style: OutlinedButton.styleFrom(
                               foregroundColor: AppColors.textPrimary,
-                              side:
-                                  const BorderSide(color: AppColors.border),
+                              side: const BorderSide(color: AppColors.border),
                               padding: const EdgeInsets.symmetric(
-                                  horizontal: 20, vertical: 16),
+                                horizontal: 20,
+                                vertical: 16,
+                              ),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(10),
                               ),
@@ -366,10 +374,13 @@ class _SkillFormPageState extends State<SkillFormPage> {
                           ElevatedButton(
                             style: ButtonStyle(
                               backgroundColor: WidgetStateProperty.all(
-                                  AppColors.accentPurple),
+                                AppColors.accentPurple,
+                              ),
                               padding: WidgetStateProperty.all(
                                 const EdgeInsets.symmetric(
-                                    horizontal: 20, vertical: 16),
+                                  horizontal: 20,
+                                  vertical: 16,
+                                ),
                               ),
                               shape: WidgetStateProperty.all(
                                 RoundedRectangleBorder(
@@ -383,7 +394,8 @@ class _SkillFormPageState extends State<SkillFormPage> {
                                     height: 20,
                                     width: 20,
                                     child: CircularProgressIndicator(
-                                        strokeWidth: 2),
+                                      strokeWidth: 2,
+                                    ),
                                   )
                                 : const Text(
                                     'Add Skill',

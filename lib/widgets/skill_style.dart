@@ -17,11 +17,7 @@ Color skillCategoryColor(String category) {
 
 /// Four-segment proficiency bar, like the website skill cards.
 class ProficiencyBar extends StatelessWidget {
-  const ProficiencyBar({
-    required this.level,
-    required this.color,
-    super.key,
-  });
+  const ProficiencyBar({required this.level, required this.color, super.key});
 
   final int level;
   final Color color;
