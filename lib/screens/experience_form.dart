@@ -50,7 +50,7 @@ class _ExperienceFormPageState extends State<ExperienceFormPage> {
     final month = date.month.toString().padLeft(2, '0');
     final day = date.day.toString().padLeft(2, '0');
     return '${date.year}-$month-$day';
-  }  
+  }
 
   final List<String> _categories = [
     'Internship',
@@ -194,8 +194,7 @@ class _ExperienceFormPageState extends State<ExperienceFormPage> {
           category: _categoryKeys[_category]!,
           thumbnail: thumbnail.isEmpty ? null : thumbnail,
           startedAt: _apiDate(_startDate!),
-          endedAt:
-              _endDate == null ? null : '${_apiDate(_endDate!)}T00:00:00',
+          endedAt: _endDate == null ? null : '${_apiDate(_endDate!)}T00:00:00',
         ),
         token: token,
       );
@@ -206,7 +205,9 @@ class _ExperienceFormPageState extends State<ExperienceFormPage> {
         // Token rejected: clear the session and ask the user to log in again.
         await auth.logout();
         messenger.showSnackBar(
-          const SnackBar(content: Text('Session expired. Please log in again.')),
+          const SnackBar(
+            content: Text('Session expired. Please log in again.'),
+          ),
         );
         if (!mounted) return;
         await ensureLoggedIn(context);
@@ -218,7 +219,9 @@ class _ExperienceFormPageState extends State<ExperienceFormPage> {
         );
       } else {
         messenger.showSnackBar(
-          SnackBar(content: Text('Failed to save experience (${e.statusCode}).')),
+          SnackBar(
+            content: Text('Failed to save experience (${e.statusCode}).'),
+          ),
         );
       }
     } catch (_) {
@@ -281,7 +284,8 @@ class _ExperienceFormPageState extends State<ExperienceFormPage> {
                 Navigator.pushReplacement(
                   context,
                   MaterialPageRoute(
-                      builder: (context) => const ExperienceListScreen()),
+                    builder: (context) => const ExperienceListScreen(),
+                  ),
                 );
               },
             ),
@@ -496,14 +500,15 @@ class _ExperienceFormPageState extends State<ExperienceFormPage> {
                           if (text.isEmpty) return null;
                           final uri = Uri.tryParse(text);
                           if (uri == null ||
-                              !(uri.scheme == 'http' || uri.scheme == 'https') ||
+                              !(uri.scheme == 'http' ||
+                                  uri.scheme == 'https') ||
                               uri.host.isEmpty) {
                             return "Enter a valid http(s) URL!";
                           }
                           return null;
                         },
                       ),
-                    ),                    
+                    ),
                     // === Cancel and Add Experience buttons ===
                     Padding(
                       padding: const EdgeInsets.all(8.0),
@@ -549,7 +554,8 @@ class _ExperienceFormPageState extends State<ExperienceFormPage> {
                                     height: 20,
                                     width: 20,
                                     child: CircularProgressIndicator(
-                                        strokeWidth: 2),
+                                      strokeWidth: 2,
+                                    ),
                                   )
                                 : const Text(
                                     'Add Experience',

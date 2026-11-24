@@ -87,10 +87,11 @@ class LeftDrawer extends StatelessWidget {
               Navigator.pushReplacement(
                 context,
                 MaterialPageRoute(
-                    builder: (context) => const ExperienceListScreen()),
+                  builder: (context) => const ExperienceListScreen(),
+                ),
               );
             },
-          ),          
+          ),
           ListTile(
             leading: const Icon(Icons.add_circle_outline),
             iconColor: AppColors.accentPurple,

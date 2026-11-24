@@ -29,5 +29,5 @@ class AppColors {
   static const Color catTechnical = accentCyan;
 
   static const Color actionPink = Color(0xFFDB2777);
-  static const Color actionTeal = Color(0xFF0F766E);  
+  static const Color actionTeal = Color(0xFF0F766E);
 }

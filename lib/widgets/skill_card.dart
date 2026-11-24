@@ -26,7 +26,7 @@ class ItemCard extends StatelessWidget {
       case 'View Experiences':
         navigator.push(
           MaterialPageRoute(builder: (context) => const ExperienceListScreen()),
-        );        
+        );
       case 'Add Skill':
         if (!await ensureLoggedIn(context)) return;
         navigator.push(
