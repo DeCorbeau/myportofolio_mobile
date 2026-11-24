@@ -140,7 +140,11 @@ class _ExperienceListScreenState extends State<ExperienceListScreen> {
             );
             for (final experience in items) {
               children.add(
-                _ExperienceCard(experience: experience, color: color),
+                _ExperienceCard(
+                  experience: experience,
+                  color: color,
+                  onDeleted: _reload,
+                ),
               );
             }
           });
@@ -195,10 +199,17 @@ class _CategoryHeader extends StatelessWidget {
 }
 
 class _ExperienceCard extends StatelessWidget {
-  const _ExperienceCard({required this.experience, required this.color});
+  const _ExperienceCard({
+    required this.experience,
+    required this.color,
+    required this.onDeleted,
+  });
 
   final Experience experience;
   final Color color;
+
+  /// Called when the detail screen reports that the experience was deleted.
+  final VoidCallback onDeleted;
 
   /// Round thumbnail with a colored ring; falls back to an icon.
   Widget _avatar() {
@@ -235,14 +246,17 @@ class _ExperienceCard extends StatelessWidget {
       ),
       child: InkWell(
         borderRadius: BorderRadius.circular(12),
-        onTap: () {
-          Navigator.push(
+        onTap: () async {
+          final deleted = await Navigator.push<bool>(
             context,
             MaterialPageRoute(
               builder: (context) =>
                   ExperienceDetailScreen(experience: experience),
             ),
           );
+          if (deleted == true) {
+            onDeleted();
+          }
         },
         child: Padding(
           padding: const EdgeInsets.all(16),
