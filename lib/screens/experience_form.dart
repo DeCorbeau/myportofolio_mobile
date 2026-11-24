@@ -3,6 +3,12 @@ import 'package:myportofolio_mobile/app_colors.dart';
 import 'package:myportofolio_mobile/screens/menu.dart';
 import 'package:myportofolio_mobile/widgets/form_helpers.dart';
 import 'package:myportofolio_mobile/widgets/left_drawer.dart';
+import 'package:myportofolio_mobile/models/experience.dart';
+import 'package:myportofolio_mobile/screens/experience_list_screen.dart';
+import 'package:myportofolio_mobile/services/api_client.dart';
+import 'package:myportofolio_mobile/services/auth_state.dart';
+import 'package:myportofolio_mobile/widgets/auth_guard.dart';
+import 'package:provider/provider.dart';
 
 class ExperienceFormPage extends StatefulWidget {
   const ExperienceFormPage({super.key});
@@ -25,6 +31,26 @@ class _ExperienceFormPageState extends State<ExperienceFormPage> {
   String _category = _defaultCategory;
   DateTime? _startDate;
   DateTime? _endDate; // null means the experience is ongoing
+  bool _isSubmitting = false;
+  String _thumbnail = "";
+
+  // API values for the dropdown labels.
+  static const Map<String, String> _categoryKeys = {
+    'Internship': 'internship',
+    'Research': 'research',
+    'Volunteer': 'volunteer',
+    'Part-Time': 'part-time',
+    'Full-Time': 'full-time',
+    'Freelance': 'freelance',
+    'Committee': 'committee',
+  };
+
+  // Formats a date as yyyy-MM-dd for the API.
+  String _apiDate(DateTime date) {
+    final month = date.month.toString().padLeft(2, '0');
+    final day = date.day.toString().padLeft(2, '0');
+    return '${date.year}-$month-$day';
+  }  
 
   final List<String> _categories = [
     'Internship',
@@ -122,6 +148,7 @@ class _ExperienceFormPageState extends State<ExperienceFormPage> {
       _category = _defaultCategory;
       _startDate = null;
       _endDate = null;
+      _thumbnail = "";
     });
   }
 
@@ -143,11 +170,74 @@ class _ExperienceFormPageState extends State<ExperienceFormPage> {
     );
   }
 
-  void _showSummaryDialog() {
-    final bullets = _splitBullets(_description);
+  Future<void> _submit() async {
+    if (!_formKey.currentState!.validate()) return;
+    if (!await ensureLoggedIn(context)) return;
+    if (!mounted) return;
+
+    final auth = context.read<AuthState>();
+    final apiClient = context.read<ApiClient>();
+    final messenger = ScaffoldMessenger.of(context);
+    final token = auth.token;
+    if (token == null) return;
+
+    final thumbnail = _thumbnail.trim();
+    setState(() {
+      _isSubmitting = true;
+    });
+    try {
+      final created = await apiClient.createExperience(
+        Experience(
+          title: _role.trim(),
+          organization: _organization.trim(),
+          description: _splitBullets(_description).join('\n'),
+          category: _categoryKeys[_category]!,
+          thumbnail: thumbnail.isEmpty ? null : thumbnail,
+          startedAt: _apiDate(_startDate!),
+          endedAt:
+              _endDate == null ? null : '${_apiDate(_endDate!)}T00:00:00',
+        ),
+        token: token,
+      );
+      if (!mounted) return;
+      _showSuccessDialog(created);
+    } on ApiException catch (e) {
+      if (e.statusCode == 401) {
+        // Token rejected: clear the session and ask the user to log in again.
+        await auth.logout();
+        messenger.showSnackBar(
+          const SnackBar(content: Text('Session expired. Please log in again.')),
+        );
+        if (!mounted) return;
+        await ensureLoggedIn(context);
+      } else if (e.statusCode == 403) {
+        messenger.showSnackBar(
+          const SnackBar(
+            content: Text('Only the portfolio owner can add entries.'),
+          ),
+        );
+      } else {
+        messenger.showSnackBar(
+          SnackBar(content: Text('Failed to save experience (${e.statusCode}).')),
+        );
+      }
+    } catch (_) {
+      messenger.showSnackBar(
+        const SnackBar(content: Text('Cannot reach the server.')),
+      );
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isSubmitting = false;
+        });
+      }
+    }
+  }
+
+  void _showSuccessDialog(Experience created) {
     showDialog(
       context: context,
-      builder: (context) {
+      builder: (dialogContext) {
         return AlertDialog(
           backgroundColor: AppColors.surface,
           shape: RoundedRectangleBorder(
@@ -165,30 +255,34 @@ class _ExperienceFormPageState extends State<ExperienceFormPage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                summaryRow('Position / Role', _role),
-                summaryRow('Organization', _organization),
+                summaryRow('Position / Role', created.title),
+                summaryRow('Organization', created.organization),
                 summaryRow(
                   'Description',
-                  bullets.map((b) => '• $b').join('\n'),
+                  created.descriptionPoints.map((b) => '• $b').join('\n'),
                 ),
-                summaryRow('Category', _category),
-                summaryRow('Start Date', _startDateController.text),
-                summaryRow(
-                  'End Date',
-                  _endDate == null ? 'Present' : _endDateController.text,
-                ),
+                summaryRow('Category', created.categoryDisplay),
+                summaryRow('Period', created.dateRangeDisplay),
               ],
             ),
           ),
           actions: [
             TextButton(
-              style: TextButton.styleFrom(
-                foregroundColor: AppColors.accentPurple,
-              ),
-              child: const Text('OK'),
+              child: const Text('Add Another'),
               onPressed: () {
-                Navigator.pop(context);
+                Navigator.pop(dialogContext);
                 _resetForm();
+              },
+            ),
+            TextButton(
+              child: const Text('View Experiences'),
+              onPressed: () {
+                Navigator.pop(dialogContext);
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => const ExperienceListScreen()),
+                );
               },
             ),
           ],
@@ -385,6 +479,31 @@ class _ExperienceFormPageState extends State<ExperienceFormPage> {
                         },
                       ),
                     ),
+                    // === Thumbnail URL (optional) ===
+                    labeledField(
+                      'Thumbnail URL (optional)',
+                      TextFormField(
+                        keyboardType: TextInputType.url,
+                        style: const TextStyle(color: AppColors.textPrimary),
+                        decoration: buildInputDecoration(
+                          hint: 'https://example.com/image.jpg',
+                        ),
+                        onChanged: (String value) {
+                          _thumbnail = value;
+                        },
+                        validator: (String? value) {
+                          final text = value?.trim() ?? '';
+                          if (text.isEmpty) return null;
+                          final uri = Uri.tryParse(text);
+                          if (uri == null ||
+                              !(uri.scheme == 'http' || uri.scheme == 'https') ||
+                              uri.host.isEmpty) {
+                            return "Enter a valid http(s) URL!";
+                          }
+                          return null;
+                        },
+                      ),
+                    ),                    
                     // === Cancel and Add Experience buttons ===
                     Padding(
                       padding: const EdgeInsets.all(8.0),
@@ -424,18 +543,21 @@ class _ExperienceFormPageState extends State<ExperienceFormPage> {
                                 ),
                               ),
                             ),
-                            onPressed: () {
-                              if (_formKey.currentState!.validate()) {
-                                _showSummaryDialog();
-                              }
-                            },
-                            child: const Text(
-                              'Add Experience',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
+                            onPressed: _isSubmitting ? null : _submit,
+                            child: _isSubmitting
+                                ? const SizedBox(
+                                    height: 20,
+                                    width: 20,
+                                    child: CircularProgressIndicator(
+                                        strokeWidth: 2),
+                                  )
+                                : const Text(
+                                    'Add Experience',
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
                           ),
                         ],
                       ),
