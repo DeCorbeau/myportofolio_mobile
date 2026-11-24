@@ -6,6 +6,7 @@ import 'package:myportofolio_mobile/screens/skill_list_screen.dart';
 import 'package:myportofolio_mobile/services/auth_state.dart';
 import 'package:myportofolio_mobile/widgets/auth_guard.dart';
 import 'package:provider/provider.dart';
+import 'package:myportofolio_mobile/screens/experience_list_screen.dart';
 
 class ItemCard extends StatelessWidget {
   final ItemHomepage item;
@@ -22,6 +23,10 @@ class ItemCard extends StatelessWidget {
         navigator.push(
           MaterialPageRoute(builder: (context) => const SkillListScreen()),
         );
+      case 'View Experiences':
+        navigator.push(
+          MaterialPageRoute(builder: (context) => const ExperienceListScreen()),
+        );        
       case 'Add Skill':
         if (!await ensureLoggedIn(context)) return;
         navigator.push(

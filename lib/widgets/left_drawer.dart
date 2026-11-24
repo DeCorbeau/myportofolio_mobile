@@ -7,6 +7,7 @@ import 'package:myportofolio_mobile/screens/skill_list_screen.dart';
 import 'package:myportofolio_mobile/services/auth_state.dart';
 import 'package:myportofolio_mobile/widgets/auth_guard.dart';
 import 'package:provider/provider.dart';
+import 'package:myportofolio_mobile/screens/experience_list_screen.dart';
 
 class LeftDrawer extends StatelessWidget {
   const LeftDrawer({super.key});
@@ -77,6 +78,19 @@ class LeftDrawer extends StatelessWidget {
               );
             },
           ),
+          ListTile(
+            leading: const Icon(Icons.work),
+            iconColor: AppColors.accentPurple,
+            textColor: AppColors.textPrimary,
+            title: const Text('View Experiences'),
+            onTap: () {
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => const ExperienceListScreen()),
+              );
+            },
+          ),          
           ListTile(
             leading: const Icon(Icons.add_circle_outline),
             iconColor: AppColors.accentPurple,
