@@ -126,13 +126,13 @@ class _SkillListScreenState extends State<SkillListScreen> {
           groupSkillsByCategory(skills).forEach((category, items) {
             final color = skillCategoryColor(category);
             children.add(
-              _CategoryHeader(label: items.first.categoryDisplay, color: color),
+              _CategorySection(
+                label: items.first.categoryDisplay,
+                color: color,
+                skills: items,
+                onDeleted: _reload,
+              ),
             );
-            for (final skill in items) {
-              children.add(
-                _SkillCard(skill: skill, color: color, onDeleted: _reload),
-              );
-            }
           });
 
           return RefreshIndicator(
@@ -154,32 +154,88 @@ class _SkillListScreenState extends State<SkillListScreen> {
   }
 }
 
-class _CategoryHeader extends StatelessWidget {
-  const _CategoryHeader({required this.label, required this.color});
+class _CategorySection extends StatefulWidget {
+  const _CategorySection({
+    required this.label,
+    required this.color,
+    required this.skills,
+    required this.onDeleted,
+  });
 
   final String label;
   final Color color;
+  final List<Skill> skills;
+  final VoidCallback onDeleted;
+
+  @override
+  State<_CategorySection> createState() => _CategorySectionState();
+}
+
+class _CategorySectionState extends State<_CategorySection> {
+  bool _isExpanded = true;
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(top: 12, bottom: 12),
-      child: Row(
-        children: [
-          Icon(Icons.arrow_drop_down, color: color, size: 20),
-          Expanded(
-            child: Text(
-              label.toUpperCase(),
-              style: TextStyle(
-                color: color,
-                fontSize: 13,
-                fontWeight: FontWeight.bold,
-                letterSpacing: 1,
-              ),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        InkWell(
+          borderRadius: BorderRadius.circular(8),
+          onTap: () {
+            setState(() {
+              _isExpanded = !_isExpanded;
+            });
+          },
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 12),
+            child: Row(
+              children: [
+                Icon(
+                  _isExpanded ? Icons.arrow_drop_down : Icons.arrow_right,
+                  color: widget.color,
+                  size: 22,
+                ),
+                Expanded(
+                  child: Text(
+                    widget.label.toUpperCase(),
+                    style: TextStyle(
+                      color: widget.color,
+                      fontSize: 13,
+                      fontWeight: FontWeight.bold,
+                      letterSpacing: 1,
+                    ),
+                  ),
+                ),
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 2,
+                  ),
+                  decoration: BoxDecoration(
+                    color: widget.color.withValues(alpha: 0.15),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Text(
+                    '${widget.skills.length}',
+                    style: TextStyle(
+                      color: widget.color,
+                      fontSize: 11,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ],
             ),
           ),
-        ],
-      ),
+        ),
+        if (_isExpanded)
+          for (final skill in widget.skills)
+            _SkillCard(
+              skill: skill,
+              color: widget.color,
+              onDeleted: widget.onDeleted,
+            ),
+      ],
     );
   }
 }

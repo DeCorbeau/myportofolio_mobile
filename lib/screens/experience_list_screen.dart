@@ -211,10 +211,24 @@ class _ExperienceCard extends StatelessWidget {
   /// Called when the detail screen reports that the experience was deleted.
   final VoidCallback onDeleted;
 
-  /// Round thumbnail with a colored ring; falls back to an icon.
+  /// Round organization logo with a colored ring; falls back to initial/icon.
   Widget _avatar() {
     final url = experience.thumbnailAbsoluteUrl;
-    final fallback = Icon(Icons.work_outline, color: color);
+    final org = experience.organization.trim();
+    final fallback = Container(
+      color: color.withValues(alpha: 0.15),
+      alignment: Alignment.center,
+      child: org.isNotEmpty
+          ? Text(
+              org[0].toUpperCase(),
+              style: TextStyle(
+                color: color,
+                fontWeight: FontWeight.bold,
+                fontSize: 18,
+              ),
+            )
+          : Icon(Icons.work_outline, color: color),
+    );
     return Container(
       width: 46,
       height: 46,
@@ -227,7 +241,16 @@ class _ExperienceCard extends StatelessWidget {
             ? fallback
             : Image.network(
                 url,
-                fit: BoxFit.cover,
+                fit: BoxFit.contain,
+                frameBuilder: (context, child, frame, wasSync) {
+                  return ColoredBox(
+                    color: Colors.white,
+                    child: Padding(
+                      padding: const EdgeInsets.all(4),
+                      child: child,
+                    ),
+                  );
+                },
                 errorBuilder: (context, error, stackTrace) => fallback,
               ),
       ),
