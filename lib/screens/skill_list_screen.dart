@@ -129,7 +129,9 @@ class _SkillListScreenState extends State<SkillListScreen> {
               _CategoryHeader(label: items.first.categoryDisplay, color: color),
             );
             for (final skill in items) {
-              children.add(_SkillCard(skill: skill, color: color));
+              children.add(
+                _SkillCard(skill: skill, color: color, onDeleted: _reload),
+              );
             }
           });
 
@@ -183,10 +185,17 @@ class _CategoryHeader extends StatelessWidget {
 }
 
 class _SkillCard extends StatelessWidget {
-  const _SkillCard({required this.skill, required this.color});
+  const _SkillCard({
+    required this.skill,
+    required this.color,
+    required this.onDeleted,
+  });
 
   final Skill skill;
   final Color color;
+
+  /// Called when the detail screen reports that the skill was deleted.
+  final VoidCallback onDeleted;
 
   @override
   Widget build(BuildContext context) {
@@ -200,13 +209,16 @@ class _SkillCard extends StatelessWidget {
         side: const BorderSide(color: AppColors.border),
       ),
       child: InkWell(
-        onTap: () {
-          Navigator.push(
+        onTap: () async {
+          final deleted = await Navigator.push<bool>(
             context,
             MaterialPageRoute(
               builder: (context) => SkillDetailScreen(skill: skill),
             ),
           );
+          if (deleted == true) {
+            onDeleted();
+          }
         },
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,

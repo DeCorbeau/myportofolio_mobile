@@ -109,6 +109,20 @@ class ApiClient {
     _ensureSuccess(response);
   }
 
+  Future<void> deleteExperience(String id, {required String token}) =>
+      _delete('/api/v1/experiences/$id/', token);
+
+  Future<void> deleteSkill(String id, {required String token}) =>
+      _delete('/api/v1/skills/$id/', token);
+
+  Future<void> _delete(String path, String token) async {
+    final response = await _client.delete(
+      _uri(path),
+      headers: {'Accept': 'application/json', 'Authorization': 'Token $token'},
+    );
+    _ensureSuccess(response);
+  }
+
   void _ensureSuccess(http.Response response) {
     if (response.statusCode >= 200 && response.statusCode < 300) {
       return;
