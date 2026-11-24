@@ -75,11 +75,19 @@ class Experience {
   @JsonKey(includeToJson: false, defaultValue: '')
   final String likedByNames;
 
-  /// The server may return a relative `/media/...` path for uploaded images.
+  /// Resolves the best available logo/thumbnail URL from API fields.
   String get thumbnailAbsoluteUrl {
-    if (thumbnailUrl.isEmpty) return '';
-    if (thumbnailUrl.startsWith('http')) return thumbnailUrl;
-    return '$apiBaseUrl$thumbnailUrl';
+    final candidates = [thumbnailUrl, thumbnailImage ?? '', thumbnail ?? ''];
+    final raw = candidates.firstWhere(
+      (value) => value.trim().isNotEmpty,
+      orElse: () => '',
+    );
+    if (raw.isEmpty) return '';
+    if (raw.startsWith('http://') || raw.startsWith('https://')) {
+      return raw;
+    }
+    final normalizedPath = raw.startsWith('/') ? raw : '/$raw';
+    return '$apiBaseUrl$normalizedPath';
   }
 
   Map<String, dynamic> toJson() => _$ExperienceToJson(this);
