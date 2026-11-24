@@ -7,6 +7,40 @@ import 'package:myportofolio_mobile/widgets/experience_style.dart';
 import 'package:myportofolio_mobile/widgets/left_drawer.dart';
 import 'package:provider/provider.dart';
 
+/// Display order of the categories.
+const _categoryOrder = [
+  'committee',
+  'internship',
+  'research',
+  'volunteer',
+  'part-time',
+  'full-time',
+  'freelance',
+];
+
+/// Groups experiences by category following [_categoryOrder].
+///
+/// Inside each group the API order is kept (newest start date first).
+/// Unknown categories are collected in a last group so nothing is dropped.
+Map<String, List<Experience>> groupExperiencesByCategory(
+  List<Experience> experiences,
+) {
+  final grouped = <String, List<Experience>>{};
+  for (final key in _categoryOrder) {
+    final items = experiences.where((e) => e.category == key).toList();
+    if (items.isNotEmpty) {
+      grouped[key] = items;
+    }
+  }
+  final others = experiences
+      .where((e) => !_categoryOrder.contains(e.category))
+      .toList();
+  if (others.isNotEmpty) {
+    grouped['other'] = others;
+  }
+  return grouped;
+}
+
 class ExperienceListScreen extends StatefulWidget {
   const ExperienceListScreen({super.key});
 
@@ -98,17 +132,28 @@ class _ExperienceListScreenState extends State<ExperienceListScreen> {
             );
           }
 
+          final children = <Widget>[];
+          groupExperiencesByCategory(experiences).forEach((category, items) {
+            final color = experienceCategoryColor(category);
+            children.add(
+              _CategoryHeader(label: items.first.categoryDisplay, color: color),
+            );
+            for (final experience in items) {
+              children.add(
+                _ExperienceCard(experience: experience, color: color),
+              );
+            }
+          });
+
           return RefreshIndicator(
             onRefresh: _reload,
             child: Center(
               child: ConstrainedBox(
                 constraints: const BoxConstraints(maxWidth: 600),
-                child: ListView.builder(
+                child: ListView(
                   physics: const AlwaysScrollableScrollPhysics(),
                   padding: const EdgeInsets.all(16),
-                  itemCount: experiences.length,
-                  itemBuilder: (context, index) =>
-                      _ExperienceCard(experience: experiences[index]),
+                  children: children,
                 ),
               ),
             ),
@@ -119,14 +164,67 @@ class _ExperienceListScreenState extends State<ExperienceListScreen> {
   }
 }
 
-class _ExperienceCard extends StatelessWidget {
-  const _ExperienceCard({required this.experience});
+class _CategoryHeader extends StatelessWidget {
+  const _CategoryHeader({required this.label, required this.color});
 
-  final Experience experience;
+  final String label;
+  final Color color;
 
   @override
   Widget build(BuildContext context) {
-    final color = experienceCategoryColor(experience.category);
+    return Padding(
+      padding: const EdgeInsets.only(top: 12, bottom: 12),
+      child: Row(
+        children: [
+          Icon(Icons.arrow_drop_down, color: color, size: 20),
+          Expanded(
+            child: Text(
+              label.toUpperCase(),
+              style: TextStyle(
+                color: color,
+                fontSize: 13,
+                fontWeight: FontWeight.bold,
+                letterSpacing: 1,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _ExperienceCard extends StatelessWidget {
+  const _ExperienceCard({required this.experience, required this.color});
+
+  final Experience experience;
+  final Color color;
+
+  /// Round thumbnail with a colored ring; falls back to an icon.
+  Widget _avatar() {
+    final url = experience.thumbnailAbsoluteUrl;
+    final fallback = Icon(Icons.work_outline, color: color);
+    return Container(
+      width: 46,
+      height: 46,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        border: Border.all(color: color, width: 2),
+      ),
+      child: ClipOval(
+        child: url.isEmpty
+            ? fallback
+            : Image.network(
+                url,
+                fit: BoxFit.cover,
+                errorBuilder: (context, error, stackTrace) => fallback,
+              ),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Card(
       elevation: 0,
       color: AppColors.card,
@@ -148,40 +246,69 @@ class _ExperienceCard extends StatelessWidget {
         },
         child: Padding(
           padding: const EdgeInsets.all(16),
-          child: Column(
+          child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                experience.categoryDisplay.toUpperCase(),
-                style: TextStyle(
-                  color: color,
-                  fontSize: 11,
-                  fontWeight: FontWeight.bold,
-                  letterSpacing: 1,
-                ),
-              ),
-              const SizedBox(height: 6),
-              Text(
-                experience.title,
-                style: const TextStyle(
-                  color: AppColors.textPrimary,
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              if (experience.organization.isNotEmpty) ...[
-                const SizedBox(height: 4),
-                Text(
-                  experience.organization,
-                  style: const TextStyle(color: AppColors.textSecondary),
-                ),
-              ],
-              const SizedBox(height: 6),
-              Text(
-                experience.dateRangeDisplay,
-                style: const TextStyle(
-                  color: AppColors.textSecondary,
-                  fontSize: 12,
+              _avatar(),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      experience.dateRangeDisplay,
+                      style: const TextStyle(
+                        color: AppColors.textSecondary,
+                        fontSize: 12,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      experience.title,
+                      style: const TextStyle(
+                        color: AppColors.textPrimary,
+                        fontSize: 17,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    if (experience.organization.isNotEmpty) ...[
+                      const SizedBox(height: 2),
+                      Text(
+                        experience.organization,
+                        style: const TextStyle(color: AppColors.textSecondary),
+                      ),
+                    ],
+                    const SizedBox(height: 10),
+                    for (final point in experience.descriptionPoints)
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 6),
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.only(top: 7, right: 8),
+                              child: Container(
+                                width: 5,
+                                height: 5,
+                                decoration: BoxDecoration(
+                                  color: color,
+                                  shape: BoxShape.circle,
+                                ),
+                              ),
+                            ),
+                            Expanded(
+                              child: Text(
+                                point,
+                                style: const TextStyle(
+                                  color: AppColors.textSecondary,
+                                  height: 1.4,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                  ],
                 ),
               ),
             ],
